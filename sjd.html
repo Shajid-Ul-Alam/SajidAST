@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SajidAST_Your Design Assistant</title>
+    <link rel="icon" type="image/png" href="file:///E:/linkedin/jast.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;900&family=Plus+Jakarta+Sans:wght@200;500;800&display=swap');
+
+        :root {
+            --al-base: #e5e5e7; 
+            --al-shadow: #c8c8cb;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-main: #1a1a1c; 
+            --text-sub: #5e5e63;
+            --accent-gold: #d43737; 
+            --gold-glow: rgba(212, 78, 55, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--al-base);
+            background-image: 
+                linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px);
+            background-size: 3px 100%, 100% 3px;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* --- METALLIC NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1100px;
+            height: 65px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 50%, rgba(200,200,200,0.2) 100%);
+            backdrop-filter: blur(15px) saturate(160%);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 35px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05), inset 0 0 15px rgba(255,255,255,0.5);
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        nav:hover {
+            transform: translateX(-50%) translateY(-2px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 50%, rgba(255, 255, 255, 0.05) 100%);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08), inset 0 0 20px rgba(255,255,255,0.7);
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: 0.3s;
+        }
+
+        .logo span { color: var(--accent-gold); }
+
+        /* HAMBURGER STYLES */
+        .hamburger {
+            display: none; 
+            flex-direction: column;
+            justify-content: space-between;
+            width: 25px;
+            height: 18px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: var(--text-main);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links li { position: relative; }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 0;
+            transition: 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent-gold);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px var(--gold-glow);
+        }
+
+        .nav-links a:hover { color: var(--accent-gold); }
+        .nav-links li:hover a::after { width: 100%; }
+
+        /* --- HERO --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 140px 5% 80px;
+            position: relative;
+        }
+
+        .al-sphere {
+            position: absolute;
+            width: 70vw; 
+            height: 35vw; 
+            max-width: 800px;
+            max-height: 400px;
+            background: radial-gradient(ellipse at 30% 30%, #fff, #d1d1d6 70%, #b8b8ba 100%);
+            border-radius: 50% / 50%; 
+            z-index: -1;
+            filter: blur(2px);
+            box-shadow: 20px 40px 80px rgba(0,0,0,0.1), -20px -20px 60px #ffffff;
+            animation: float-oval 12s ease-in-out infinite;
+        }
+
+        .hero-content h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2.5rem, 10vw, 6.5rem);
+            font-weight: 900;
+            line-height: 0.85;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        /* Specific Highlight for "DESIGN" word */
+        .hero-content h1 span {
+            color: var(--accent-gold);
+        }
+
+        .hero-content p {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+            color: var(--text-sub);
+        }
+
+        .hero-tag {
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            display: block; 
+        }
+
+        /* --- BUTTONS --- */
+        .btn-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn-al {
+            padding: 16px 35px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            background: var(--al-base);
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            display: inline-block;
+        }
+        .btn-al:hover { transform: translateY(-3px); color: var(--accent-gold); box-shadow: 8px 8px 15px #bebebe, -8px -8px 15px #ffffff; }
+        .btn-al.primary { background: var(--text-main); color: #fff; border: none; }
+        .btn-al.primary:hover { background: var(--accent-gold); color: #fff; box-shadow: 0 10px 20px var(--gold-glow); }
+
+        /* --- ABOUT SECTION --- */
+        .about {
+            padding: 100px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .about-visual {
+            background: var(--al-base);
+            border: 1px solid var(--glass-border);
+            height: 400px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 8px 8px 16px #bebebe, inset -8px -8px 16px #ffffff;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .about-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+            transition: all 0.5s ease;
+            filter: grayscale(20%);
+        }
+
+        .about-visual:hover {
+            transform: translateY(-10px);
+            box-shadow: 15px 15px 30px #bebebe, -15px -15px 30px #ffffff;
+        }
+
+        .about-visual:hover img {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .about-text h2 { font-family: 'Montserrat'; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 20px; }
+        .about-text h2 span { color: var(--accent-gold); }
+        .about-text p { color: var(--text-sub); line-height: 1.8; margin-bottom: 20px; }
+
+        /* --- CAROUSELS COMMON STYLES --- */
+        .carousel-track {
+            display: flex;
+            width: max-content;
+        }
+
+        .tool-card, .skill-card {
+            width: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            opacity: 0.6;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: default;
+        }
+
+        .tool-card:hover, .skill-card:hover { 
+            opacity: 1; 
+            color: var(--accent-gold); 
+            transform: translateY(-12px) scale(1.05);
+        }
+
+        .tool-icon, .skill-dot {
+            width: 30px;
+            height: 30px;
+            background: var(--text-main);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.6rem;
+        }
+
+        .skill-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        @keyframes scrollForward { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
+        @keyframes scrollReverse { 0% { transform: translateX(-33.333%); } 100% { transform: translateX(0); } }
+
+        .scroll-forward { animation: scrollForward 35s linear infinite; }
+        .scroll-reverse { animation: scrollReverse 35s linear infinite; }
+
+        .skills-section { padding: 40px 0; border-bottom: 1px solid var(--glass-border); overflow: hidden; }
+        .tools-section { padding: 80px 0; background: rgba(255,255,255,0.15); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); overflow: hidden; margin-top: 50px; }
+
+        /* --- PORTFOLIO --- */
+        .portfolio {
+            padding: 100px 5% 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .archive-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .work-tile {
+            height: 480px; 
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: 0.4s;
+        }
+        
+        .work-tile:hover { transform: translateY(-10px); border-color: var(--accent-gold); background: rgba(255, 255, 255, 0.4); }
+
+        .tile-image-area {
+            width: 100%;
+            height: 220px;
+            background: var(--al-base);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .tile-image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: 0.4s;
+        }
+
+        .work-tile:hover .tile-image-area img {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .tile-content {
+            margin-top: auto;
+            padding: 0 10px 10px;
+        }
+
+        /* --- CONTACT --- */
+        .contact-section { padding: 100px 5%; }
+        .contact-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            padding: 50px;
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+        }
+        .contact-link-box { margin-top: 30px; border-left: 2px solid var(--accent-gold); padding-left: 20px; }
+        .input-group label { display: block; font-size: 0.65rem; font-weight: 800; margin-bottom: 5px; font-family: monospace; }
+        .input-group input, .input-group textarea {
+            width: 100%; padding: 15px; background: var(--al-base); border: none; border-radius: 10px;
+            box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff; outline: none; font-family: inherit;
+        }
+
+        @keyframes float-oval { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(20px, -30px) rotate(2deg); } }
+
+        /* ================= ARCHIVE HORIZONTAL SCROLL ================= */
+
+.archive-scroll-wrapper {
+    height: 250vh;
+    position: relative;
+}
+
+.archive-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.portfolio {
+    display: flex;
+    gap: 25px;
+    padding: 0 5%;
+    width: max-content;
+    will-change: transform;
+}
+
+/* ================= ORIGINAL CARD STYLES ================= */
+
+.archive-link {
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+}
+
+.work-tile {
+    width: 300px;
+    height: 480px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: 0.4s;
+}
+
+.work-tile:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-gold);
+    background: rgba(255,255,255,0.4);
+}
+
+.tile-image-area {
+    width: 100%;
+    height: 220px;
+    background: var(--al-base);
+    border-radius: 16px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.tile-image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+    transition: 0.4s;
+}
+
+.work-tile:hover img {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.tile-content {
+    margin-top: auto;
+}
+
+        /* --- RESPONSIVE FIXES --- */
+        @media (max-width: 850px) {
+            .hamburger { display: flex; }
+            
+            .nav-links {
+                display: none; 
+                position: absolute;
+                top: 75px; 
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100%;
+                background: rgba(229, 229, 231, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                border-radius: 20px;
+                padding: 20px;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                opacity: 0; 
+                animation: slideDown 0.3s forwards ease-in-out;
+            }
+
+            .nav-links.active {
+                display: flex;
+                opacity: 1;
+            }
+
+            @keyframes slideDown {
+                from { opacity: 0; transform: translate(-50%, -10px); }
+                to { opacity: 1; transform: translate(-50%, 0); }
+            }
+
+            .hero-content h1 { font-size: 3.5rem; }
+            
+            .about {
+                grid-template-columns: 1fr;
+                padding: 60px 8%;
+                text-align: center;
+            }
+            .about-visual { height: 250px; order: -1; margin-bottom: 30px; }
+            
+            .contact-container { grid-template-columns: 1fr; padding: 40px; }
+            .work-tile { height: auto; }
+        }
+
+        @media (max-width: 850px) {
+            nav {
+                justify-content: space-between; 
+            }
+            
+            .logo {
+                order: 1; 
+            }
+
+            .hamburger {
+                display: flex;
+                order: 2; 
+            }
+
+            .nav-links {
+                order: 3; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav { width: 95%; padding: 0 20px; }
+            
+            .hero {
+                padding: 120px 5% 60px; 
+                min-height: auto; 
+            }
+
+            .hero-content h1 {
+                font-size: 2.2rem; 
+                line-height: 1.1;
+            }
+            
+            .hero-tag {
+                letter-spacing: 2px !important; 
+                font-size: 0.6rem !important;
+            }
+
+            .hero-content p { font-size: 0.9rem; }
+
+            .al-sphere {
+                width: 90vw; 
+                height: 70vw;
+                max-height: 300px;
+            }
+
+            .btn-container { flex-direction: column; width: 100%; }
+            .btn-al { width: 100%; text-align: center; }
+
+            .about-visual { height: 200px; }
+            .about-text h2 { font-size: 1.8rem; }
+            .portfolio { grid-template-columns: 1fr; padding: 60px 5% 20px; }
+            .tool-card, .skill-card { width: 200px; font-size: 0.7rem; }
+            .contact-section { padding: 60px 5%; }
+            .contact-container { padding: 25px 20px; border-radius: 20px; }
+            .contact-info h2 { font-size: 1.8rem !important; }
+            .contact-link-box p { font-size: 0.9rem !important; word-break: break-all; }
+        }
+        @media (max-width: 850px) {
+    .archive-scroll-wrapper {
+        height: auto;
+    }
+
+    .archive-sticky {
+        position: relative;
+        height: auto;
+    }
+
+    .portfolio {
+        flex-direction: column;
+        width: 100%;
+        transform: none !important;
+    }
+
+    .work-tile {
+        width: 100%;
+        height: auto;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <div id="top"></div>
+
+    <nav>
+        <a href="#top" class="logo">Sajid<span>AST</span></a>
+        
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#work">Archive</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="al-sphere"></div>
+        <div class="hero-content">
+            <p class="hero-tag">Imagination_Conception_Creation</p>
+            <h1>I <span>DESIGN</span><br>Imagination</h1>
+            <p>Turn your imagination into interfaces where High-end Design Aesthetics meets Artistic Precision_which will be both functional and visually appealing.</p>
+            <div class="btn-container">
+                <a href="#about" class="btn-al">The Studio</a>
+                <a href="#contact" class="btn-al primary">Start Project</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="about-visual">
+            <img src="file:///E:/pictures/amr%20picture%20web.png" alt="Sajid Assistant">
+        </div>
+        <div class="about-text">
+            <h2>About <span>The Assistant</span></h2>
+            <p>I am Sajid, a Graphic Engineer & Design Enthusiast specializing in high-fidelity design systems.</p>
+            <p>I'm driven by curiosity to explore the intersection of logic and creativity, where Idea meets design, and design become experiences.</p>
+            <br>
+            <a href="#work" class="btn-al">View Archive</a>
+        </div>
+    </section>
+
+    <section class="skills-section">
+        <h3 style="text-align: center; font-family: 'Montserrat'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 5px; color: var(--text-sub); margin-bottom: 25px;">Core_Specializations</h3>
+        <div class="carousel-track scroll-reverse">
+            <div class="skill-card"><div class="skill-dot"></div>Logos</div>
+            <div class="skill-card"><div class="skill-dot"></div>UI/UX</div>
+            <div class="skill-card"><div class="skill-dot"></div>Labelling</div>
+            <div class="skill-card"><div class="skill-dot"></div>Typography</div>
+            <div class="skill-card"><div class="skill-dot"></div>Brand Identity</div>
+            <div class="skill-card"><div class="skill-dot"></div>Social Media</div>
+            <div class="skill-card"><div class="skill-dot"></div>Motion Graphics</div>
+            <div class="skill-card"><div class="skill-dot"></div>Retouching</div>
+            <div class="skill-card"><div class="skill-dot"></div>Photo Editing</div>
+            <div class="skill-card"><div class="skill-dot"></div>Logos</div>
+            <div class="skill-card"><div class="skill-dot"></div>UI/UX</div>
+            <div class="skill-card"><div class="skill-dot"></div>Labelling</div>
+            <div class="skill-card"><div class="skill-dot"></div>Typography</div>
+            <div class="skill-card"><div class="skill-dot"></div>Brand Identity</div>
+            <div class="skill-card"><div class="skill-dot"></div>Social Media</div>
+            <div class="skill-card"><div class="skill-dot"></div>Motion Graphics</div>
+            <div class="skill-card"><div class="skill-dot"></div>Retouching</div>
+            <div class="skill-card"><div class="skill-dot"></div>Photo Editing</div>
+             <div class="skill-card"><div class="skill-dot"></div>Logos</div>
+            <div class="skill-card"><div class="skill-dot"></div>UI/UX</div>
+            <div class="skill-card"><div class="skill-dot"></div>Labelling</div>
+            <div class="skill-card"><div class="skill-dot"></div>Typography</div>
+            <div class="skill-card"><div class="skill-dot"></div>Brand Identity</div>
+            <div class="skill-card"><div class="skill-dot"></div>Social Media</div>
+            <div class="skill-card"><div class="skill-dot"></div>Motion Graphics</div>
+            <div class="skill-card"><div class="skill-dot"></div>Retouching</div>
+            <div class="skill-card"><div class="skill-dot"></div>Photo Editing</div>
+            <div class="skill-card"><div class="skill-dot"></div>Logos</div>
+            <div class="skill-card"><div class="skill-dot"></div>UI/UX</div>
+            <div class="skill-card"><div class="skill-dot"></div>Labelling</div>
+            <div class="skill-card"><div class="skill-dot"></div>Typography</div>
+            <div class="skill-card"><div class="skill-dot"></div>Brand Identity</div>
+            <div class="skill-card"><div class="skill-dot"></div>Social Media</div>
+            <div class="skill-card"><div class="skill-dot"></div>Motion Graphics</div>
+            <div class="skill-card"><div class="skill-dot"></div>Retouching</div>
+            <div class="skill-card"><div class="skill-dot"></div>Photo Editing</div>
+        </div>
+    </section>
+
+    <!-- ================= ARCHIVE ================= -->
+<section class="archive-scroll-wrapper" id="work">
+    <div class="archive-sticky">
+        <div class="portfolio" id="horizontalTrack">
+
+            <!-- CARD 01 -->
+            <a href="file:///E:/Projects/My playground of codes/Graphics.html" class="archive-link">
+                <div class="work-tile">
+                    <div class="tile-image-area">
+                        <img src="file:///E:/pictures/Gemini_Generated_Image_ze309mze309mze30.png">
+                    </div>
+                    <div class="tile-content">
+                        <h3>01. Graphics_Media</h3>
+                        <p>Purpose-built visuals for digital and physical products</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 02 -->
+            <a href="file:///E:/Projects/My playground of codes/Ui-UX.html" class="archive-link">
+                <div class="work-tile">
+                    <div class="tile-image-area">
+                        <img src="file:///E:/pictures/uiuxart.png">
+                    </div>
+                    <div class="tile-content">
+                        <h3>02. UI_UX</h3>
+                        <p>Thoughtfully designed interfaces</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 03 -->
+            <a href="file:///E:/Projects/My playground of codes/Identity.html" class="archive-link">
+                <div class="work-tile">
+                    <div class="tile-image-area">
+                        <img src="file:///E:/pictures/img for branding.png">
+                    </div>
+                    <div class="tile-content">
+                        <h3>03. Brand_Identity</h3>
+                        <p>Strategy driven branding</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 04 -->
+            <a href="file:///E:/Projects/My playground of codes/Printable.html" class="archive-link">
+                <div class="work-tile">
+                    <div class="tile-image-area">
+                        <img src="file:///E:/pictures/Gemini_Generated_Image_33ewd333ewd333ew.png">
+                    </div>
+                    <div class="tile-content">
+                        <h3>04. Print_Avenue</h3>
+                        <p>Concepts to curated printable arts</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 05 -->
+            <a href="file:///E:/Projects/My playground of codes/Retouching.html" class="archive-link">
+                <div class="work-tile">
+                    <div class="tile-image-area">
+                        <img src="file:///E:/pictures/Gemini_Generated_Image_g1byteg1byteg1by.png">
+                    </div>
+                    <div class="tile-content">
+                        <h3>05. Retouching_Unit</h3>
+                        <p>Enhanced photo retouching</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- CARD 06 -->
+            <a href="file:///E:/Projects/My playground of codes/Presentations.html" class="archive-link">
+                <div class="work-tile">
+                    <div class="tile-image-area">
+                        <img src="file:///E:/pictures/Gemini_Generated_Image_hpalwghpalwghpal.png">
+                    </div>
+                    <div class="tile-content">
+                        <h3>06. Slides_Board</h3>
+                        <p>Creativity meets presentations</p>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+    <section class="tools-section">
+        <h3 style="text-align: center; font-family: 'Montserrat'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 5px; color: var(--text-sub); margin-bottom: 30px;">Designing_Toolkit</h3>
+        <div class="carousel-track scroll-forward">
+            <div class="tool-card"><div class="tool-icon">Ps</div>Adobe Photoshop</div>
+            <div class="tool-card"><div class="tool-icon">C</div>Canva</div>
+            <div class="tool-card"><div class="tool-icon">Ai</div>GPT</div>
+            <div class="tool-card"><div class="tool-icon">A</div>Affinity</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+            <div class="tool-card"><div class="tool-icon">Ps</div>Adobe Photoshop</div>
+            <div class="tool-card"><div class="tool-icon">C</div>Canva</div>
+            <div class="tool-card"><div class="tool-icon">Ai</div>GPT</div>
+            <div class="tool-card"><div class="tool-icon">A</div>Affinity</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+            <div class="tool-card"><div class="tool-icon">Ps</div>Adobe Photoshop</div>
+            <div class="tool-card"><div class="tool-icon">C</div>Canva</div>
+            <div class="tool-card"><div class="tool-icon">Ai</div>GPT</div>
+            <div class="tool-card"><div class="tool-icon">A</div>Affinity</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+            <div class="tool-card"><div class="tool-icon">Ps</div>Adobe Photoshop</div>
+            <div class="tool-card"><div class="tool-icon">C</div>Canva</div>
+            <div class="tool-card"><div class="tool-icon">Ai</div>GPT</div>
+            <div class="tool-card"><div class="tool-icon">A</div>Affinity</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+            <div class="tool-card"><div class="tool-icon">Ps</div>Adobe Photoshop</div>
+            <div class="tool-card"><div class="tool-icon">C</div>Canva</div>
+            <div class="tool-card"><div class="tool-icon">Ai</div>GPT</div>
+            <div class="tool-card"><div class="tool-icon">A</div>Affinity</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+            <div class="tool-card"><div class="tool-icon">Ps</div>Adobe Photoshop</div>
+            <div class="tool-card"><div class="tool-icon">C</div>Canva</div>
+            <div class="tool-card"><div class="tool-icon">Ai</div>GPT</div>
+            <div class="tool-card"><div class="tool-icon">A</div>Affinity</div>
+            <div class="tool-card"><div class="tool-icon">›</div>Wondershare Filmora</div>
+            <div class="tool-card"><div class="tool-icon">Lr</div>Adobe Lightroom</div>
+            <div class="tool-card"><div class="tool-icon">CC</div>CapCut</div>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="contact-container">
+            <div class="contact-info">
+                <h2 style="font-family: 'Montserrat'; font-size: 2.5rem; font-weight: 900; text-transform: uppercase;">Get <span>In Touch</span></h2>
+                <p>Ready to transform your ideas into stunning results? Let’s collaborate.</p>
+                <div class="contact-link-box">
+                    <small style="font-family: monospace; color: var(--accent-gold); font-weight: bold;">Mail_Me</small>
+                    <p style="font-weight: 550; font-size: 1.00rem;">arslanshajid01@gmail.com</p>
+                </div>
+                <div class="contact-link-box">
+                    <small style="font-family: monospace; color: var(--accent-gold); font-weight: bold;">Linked_In</small>
+                    <p style="font-weight: 550; font-size: 1.00rem;">www.linkedin.com/in/arslansajid01</p>
+                </div>
+                <div class="contact-link-box">
+                    <small style="font-family: monospace; color: var(--accent-gold); font-weight: bold;">WhatsApp_Me</small>
+                    <p style="font-weight: 550; font-size: 1.00rem;">01876408827</p>
+                </div>
+            </div>
+<form 
+  class="contact-form"
+  action="https://api.web3forms.com/submit"
+  method="POST"
+>
+
+    <!-- REQUIRED -->
+    <input type="hidden" name="access_key" value="e7512d80-dc67-43b0-b4cb-b88245750dca">
+
+    <div class="input-group" style="margin-bottom: 20px;">
+        <label>IDENTITY_TAG</label>
+        <input type="text" name="name" placeholder="Full Name" required>
+    </div>
+
+    <div class="input-group" style="margin-bottom: 20px;">
+        <label>YOUR_EMAIL</label>
+        <input type="email" name="email" placeholder="Email Address" required>
+    </div>
+
+    <div class="input-group" style="margin-bottom: 20px;">
+        <label>A MESSAGE_FROM YOU</label>
+        <textarea name="message" rows="4" placeholder="Brief project overview..." required></textarea>
+    </div>
+
+    <!-- Optional spam protection -->
+    <input type="checkbox" name="botcheck" style="display:none;">
+
+    <button type="submit" class="btn-al primary" style="width: 100%; cursor: pointer;">
+        Execute Submission
+    </button>
+</form>
+
+
+        </div>
+    </section>
+
+    <footer style="text-align: center; padding: 50px; opacity: 0.4; font-size: 0.7rem; letter-spacing: 2px;">
+        ©90s7 ArslanSHAJID // PORTFOLIO V1.00
+    </footer>
+
+    <script>
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        const links = document.querySelectorAll('.nav-links li a');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+        const wrapper = document.querySelector('.archive-scroll-wrapper');
+const track = document.getElementById('horizontalTrack');
+const cards = track.querySelectorAll('.work-tile');
+const contactBtn = document.querySelector('.nav-links li:last-child a');
+
+let maxTranslateX = 0;
+let ticking = false;
+
+function calculateCrossDistance() {
+    if (!cards[5]) return;
+
+    const sixthCard = cards[5];
+
+    // Contact button LEFT edge in document space
+    const contactLeft =
+        contactBtn.getBoundingClientRect().left + window.scrollX;
+
+    // 6th card RIGHT edge in track space
+    const sixthCardRight =
+        sixthCard.offsetLeft + sixthCard.offsetWidth;
+
+    // Move until card's right edge crosses contact button
+    maxTranslateX = sixthCardRight - contactLeft;
+
+    // Extra safety (optional)
+    if (maxTranslateX < 0) maxTranslateX = 0;
+}
+
+window.addEventListener('load', calculateCrossDistance);
+window.addEventListener('resize', calculateCrossDistance);
+
+function easeInOut(t) {
+    return t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+
+    requestAnimationFrame(() => {
+        const start = wrapper.offsetTop;
+        const end = start + wrapper.offsetHeight - window.innerHeight;
+
+        if (window.scrollY < start || window.scrollY > end) {
+            ticking = false;
+            return;
+        }
+
+        const rawProgress =
+            (window.scrollY - start) / (end - start);
+
+        const progress = easeInOut(
+            Math.min(Math.max(rawProgress, 0), 1)
+        );
+
+        track.style.transform =
+            `translateX(${-maxTranslateX * progress}px)`;
+
+        ticking = false;
+    });
+});
+    </script>
+
+</body>
+</html>
